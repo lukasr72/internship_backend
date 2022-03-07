@@ -1,1 +1,1 @@
-# internship_backend
+# GoodRequest Backend internship
