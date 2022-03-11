@@ -1,0 +1,8 @@
+{
+	"watch": [
+		"src/"
+	],
+	"ignore": [],
+	"ext": "ts,json,ejs,html",
+	"events": {}
+}

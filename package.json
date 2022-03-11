@@ -1,0 +1,43 @@
+{
+  "name": "internship_backend",
+  "version": "1.0.0",
+  "description": "Project lessons of backend internship program",
+  "main": "src/index.ts",
+  "scripts": {
+    "debug": "cross-env NODE_ENV=development nodemon --exec 'node --inspect -r dotenv/config -r ts-node/register src/index.ts'"
+  },
+  "author": "Miroslava Filčáková <miroslava.filcakova@goodrequest.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@goodrequest/eslint-config-typescript": "1.0.1",
+    "@types/config": "0.0.41",
+    "@types/express": "4.17.13",
+    "@types/lodash": "4.14.178",
+    "@types/pg": "8.6.4",
+    "cross-env": "7.0.3",
+    "dotenv": "15.0.0",
+    "nodemon": "2.0.15",
+    "ts-node": "10.4.0",
+    "typescript": "4.5.5",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-config-airbnb-typescript": "16.0.0",
+    "@typescript-eslint/parser": "5.4.0",
+    "eslint": "8.2.0",
+    "eslint-plugin-import": "2.25.3",
+    "eslint-plugin-prettier": "4.0.0",
+    "@typescript-eslint/eslint-plugin": "5.4.0",
+    "prettier": "2.4.1"
+  },
+  "dependencies": {
+    "colors": "1.4.0",
+    "config": "3.3.7",
+    "dayjs": "1.10.7",
+    "express": "4.17.2",
+    "joi": "17.4.2",
+    "lodash": "4.17.21",
+    "pg": "8.7.1",
+    "sequelize": "6.9.0"
+  }
+}
