@@ -6,7 +6,7 @@
   "scripts": {
     "debug": "cross-env NODE_ENV=development nodemon --exec 'node --inspect -r dotenv/config -r ts-node/register src/index.ts'"
   },
-  "author": "Miroslava Filčáková <miroslava.filcakova@goodrequest.com>",
+  "author": "Lukáš Roman <lukasr72@gmail.com>",
   "license": "MIT",
   "private": true,
   "devDependencies": {
