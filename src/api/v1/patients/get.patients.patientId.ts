@@ -1,34 +1,35 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from "express";
+import Joi from "joi";
+import { PatientModel } from "../../../db/models/patients";
+import { DiagnoseModel } from "../../../db/models/diagnoses";
+import { SubstanceModel } from "../../../db/models/substances";
 
+export const schema = Joi.object({
+  body: Joi.object(),
+  query: Joi.object(),
+  params: Joi.object({
+    patientId: Joi.number().integer().required()
+  })
+})
 
-export const workflow = (req: Request, res: Response) => {
+export const workflow = async (req: Request, res: Response, next: NextFunction) => {
 
-  const responseData = {
-    "patient": {
-      "id": 1,
-      "firstName": "string",
-      "lastName": "string",
-      "birthdate": "2022-03-29T11:01:27.571Z",
-      "weight": 200,
-      "height": 1,
-      "identificationNumber": "VI4ttYSyTM66",
-      "gender": "MALE",
-      "age": 0,
-      "personType": "ADULT",
-      "substanceAmount": 1,
-      "diagnose": {
-        "id": 1,
-        "name": "string",
-        "description": "string",
-        "substance": {
-          "id": 1,
-          "name": "string",
-          "timeUnit": "SECOND",
-          "halfLife": 0
-        }
+  const patientId: number = Number(req.params.patientId)
+
+  try {
+    const patient = await PatientModel.findByPk(patientId, {
+      include: {
+        model: DiagnoseModel,
+        include: [{ model: SubstanceModel }]
       }
+    })
+    if(!patient) {
+      throw new Error('Patient not found.')
     }
+
+    res.status(200).json(patient)
+  } catch (error) {
+    return next(error)
   }
 
-  res.json(responseData)
 }
