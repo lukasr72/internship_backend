@@ -39,22 +39,26 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
       throw new Error('Patient not found.')
     }
 
-    const diagnose = await DiagnoseModel.findAll({
-      where: {
-        id: patientNewData.diagnoseID
+    if(patientNewData.diagnoseID) {
+      const diagnose = await DiagnoseModel.findAll({
+        where: {
+          id: patientNewData.diagnoseID
+        }
+      })
+      if (diagnose.length === 0) {
+        throw new Error('Diagnose not found.')
       }
-    })
-    if (diagnose.length === 0) {
-      throw new Error('Diagnose not found.')
     }
 
-    const patientUnique = await PatientModel.findAll({
-      where: {
-        identificationNumber: patientNewData.identificationNumber
+    if(patientNewData.identificationNumber) {
+      const patientUnique = await PatientModel.findAll({
+        where: {
+          identificationNumber: patientNewData.identificationNumber
+        }
+      })
+      if (patientUnique.length > 0) {
+        throw new Error('Patient\'s identification number already exists.')
       }
-    })
-    if (patientUnique.length > 0) {
-      throw new Error('Patient\'s identification number already exists.')
     }
 
     await patientModel.update(patientNewData)
