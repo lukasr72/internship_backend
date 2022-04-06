@@ -3,12 +3,12 @@ import { PatientModel } from "../../../db/models/patients";
 import { DiagnoseModel } from "../../../db/models/diagnoses";
 import { SubstanceModel } from "../../../db/models/substances";
 import Joi from "joi";
-import { GENDER } from "../../../utils/enums";
+import { GENDER_PARAM } from "../../../utils/enums";
 
 export const schema = Joi.object({
   body: Joi.object(),
   query: Joi.object({
-    gender: Joi.string().valid(...Object.values(GENDER)),
+    gender: Joi.string().valid(...Object.values(GENDER_PARAM)),
     order: Joi.string(),
     limit: Joi.number(),
     page: Joi.number()
@@ -22,16 +22,19 @@ export const workflow = async (req: Request, res: Response) => {
   const qOrder = (req.query.order as string).split(':')
   const limit: number = Number(req.query.limit)
   const page: number = Number(req.query.page)
-  const offset: number = page * limit
+  const offset: number = (page - 1) * limit
+
+  let whereConditions = {}
+  if (gender !== 'ALL') {
+    whereConditions = { gender }
+  }
 
   const queryPatients = await PatientModel.findAndCountAll({
     include: {
       model: DiagnoseModel,
       include: [{model: SubstanceModel}]
     },
-    where: {
-      gender
-    },
+    where: whereConditions,
     order: [[qOrder[0], qOrder[1]]],
     limit,
     offset

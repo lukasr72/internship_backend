@@ -3,6 +3,12 @@ export enum GENDER {
   FEMALE = 'FEMALE'
 }
 
+export enum GENDER_PARAM {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  ALL = 'ALL'
+}
+
 export enum SUBSTANCES_TIMEUNIT {
   MINUTE = 'MINUTE',
   HOUR = 'HOUR',
