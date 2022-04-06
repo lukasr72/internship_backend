@@ -24,7 +24,7 @@ export const workflow = async (req: Request, res: Response) => {
   const page: number = Number(req.query.page)
   const offset: number = page * limit
 
-  const queryPatients = await PatientModel.findAll({
+  const queryPatients = await PatientModel.findAndCountAll({
     include: {
       model: DiagnoseModel,
       include: [{model: SubstanceModel}]
@@ -37,5 +37,13 @@ export const workflow = async (req: Request, res: Response) => {
     offset
   })
 
-  res.json(queryPatients)
+  res.json({
+    patients: queryPatients.rows,
+    pagination: {
+      "limit": limit,
+      "page": page,
+      "totalPages": Math.ceil(queryPatients.count / limit),
+      "totalCount": queryPatients.count
+    }
+  })
 }
