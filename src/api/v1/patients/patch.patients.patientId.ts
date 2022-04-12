@@ -3,7 +3,6 @@ import Joi from "joi";
 import { GENDER } from "../../../utils/enums";
 import { PatientModel } from "../../../db/models/patients";
 import { DiagnoseModel } from "../../../db/models/diagnoses";
-import { SubstanceModel } from "../../../db/models/substances";
 import { IMessage, IPatientsMessageResponse } from "../../../utils/interfaces";
 
 export const schema = Joi.object({
@@ -29,12 +28,7 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
   const patientNewData: PatientModel = req.body
 
   try {
-    const patientModel = await PatientModel.findByPk(patientId, {
-      include: {
-        model: DiagnoseModel,
-        include: [{ model: SubstanceModel }]
-      }
-    })
+    const patientModel = await PatientModel.findByPk(patientId)
     if(!patientModel) {
       throw new Error('Patient not found.')
     }

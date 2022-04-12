@@ -15,3 +15,8 @@ export enum SUBSTANCES_TIMEUNIT {
   SECOND = 'SECOND',
   DAY = 'DAY'
 }
+
+export enum PERSON_TYPE {
+  CHILD = 'CHILD',
+  ADULT = 'ADULT'
+}
