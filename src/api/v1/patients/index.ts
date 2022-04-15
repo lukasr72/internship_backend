@@ -12,7 +12,7 @@ const router = Router()
 
 export default () => {
   router.get('/', validationMiddleware(GetPatients.schema), GetPatients.workflow)
-  router.post("/", validationMiddleware(PostPatients.schema), PostPatients.workflow, errorMiddleware())
+  router.post('/', validationMiddleware(PostPatients.schema), PostPatients.workflow, errorMiddleware())
   router.get('/:patientId', validationMiddleware(GetPatientsPatientId.schema), GetPatientsPatientId.workflow, errorMiddleware())
   router.patch('/:patientId', validationMiddleware(PatchPatientsPatientId.schema), PatchPatientsPatientId.workflow, errorMiddleware())
   router.delete('/:patientId', validationMiddleware(DeletePatientsPatientId.schema), DeletePatientsPatientId.workflow, errorMiddleware())

@@ -12,7 +12,6 @@ export const schema = Joi.object({
 })
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
-
   const { Patient } = models
 
   const patientId: number = Number(req.params.patientId)

@@ -20,8 +20,7 @@ export const schema = Joi.object({
 })
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
-
-  const { Patient, Diagnose, Substance } = models
+  const { Patient, Diagnose } = models
 
   const newPatient = req.body
 

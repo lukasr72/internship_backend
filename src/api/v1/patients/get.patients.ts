@@ -47,7 +47,6 @@ export const responseSchema = Joi.object({
 })
 
 export const workflow = async (req: Request, res: Response) => {
-
   const { Patient, Diagnose, Substance } = models
 
   const gender = req.query.gender ? req.query.gender : 'ALL'
