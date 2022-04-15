@@ -1,20 +1,15 @@
 import supertest from 'supertest'
 import { expect } from 'chai'
 import app from '../../../../../src/app'
-import { responseSchema } from '../../../../../src/api/v1/patients/get.patients'
+import { responseSchema } from '../../../../../src/api/v1/patients/get.patients.patientId'
 
-const url = '/api/v1/patients'
+const endpoint = (patientID: number | string) => `/api/v1/patients/${patientID}`
+const patientID: number = 5
 
-describe(`[GET] ${url}`, () => {
-  it('Response should return list of patients', async () => {
+describe(`[GET] ${endpoint(':patientID')}`, () => {
+  it(`Response should return patient with patientID: ${patientID}`, async () => {
     const response = await supertest(app)
-      .get(url)
-      .query({
-        gender: 'FEMALE',
-        order: 'lastName:asc',
-        limit: 25,
-        page: 1
-      })
+      .get(endpoint(patientID))
       .set('Content-Type', 'application/json')
 
     expect(response.status).to.eq(200)

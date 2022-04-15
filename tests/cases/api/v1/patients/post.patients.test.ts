@@ -1,19 +1,23 @@
 import supertest from 'supertest'
 import { expect } from 'chai'
 import app from '../../../../../src/app'
-import { responseSchema } from '../../../../../src/api/v1/patients/get.patients'
+import { responseSchema } from '../../../../../src/api/v1/patients/post.patients'
 
 const url = '/api/v1/patients'
 
-describe(`[GET] ${url}`, () => {
-  it('Response should return list of patients', async () => {
+describe(`[POST] ${url}`, () => {
+  it('Response should return message and id of new patient', async () => {
     const response = await supertest(app)
-      .get(url)
-      .query({
-        gender: 'FEMALE',
-        order: 'lastName:asc',
-        limit: 25,
-        page: 1
+      .post(url)
+      .send({
+        firstName: "Oscar",
+        lastName: "Smith",
+        birthdate: "1977-08-15T03:25:36.443Z",
+        weight: 95,
+        height: 195,
+        identificationNumber: "LPWUs9VlLPWU",
+        gender: "MALE",
+        diagnoseID: 9
       })
       .set('Content-Type', 'application/json')
 
