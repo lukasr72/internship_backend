@@ -21,6 +21,16 @@ export const schema = Joi.object({
   })
 })
 
+export const responseSchema = Joi.object({
+  messages: Joi.array()
+    .items(
+      Joi.object({
+        message: Joi.string().required(),
+        type: Joi.string().max(50).required(),
+      }).required()
+    ).required()
+})
+
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
   const { Patient, Diagnose } = models
 

@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi"
-import { GENDER } from "../../../utils/enums"
+import { GENDER } from "../../../utils/enums";
 import { IMessage, IPatient, IPatientsPostResponse } from "../../../utils/interfaces";
 import { models } from "../../../db";
+import { PatientModel } from "../../../db/models/patients";
 
 export const schema = Joi.object({
   body: Joi.object({
@@ -19,9 +20,21 @@ export const schema = Joi.object({
   params: Joi.object()
 })
 
+export const responseSchema = Joi.object({
+  messages: Joi.array()
+    .items(
+      Joi.object({
+        message: Joi.string().required(),
+        type: Joi.string().max(50).required(),
+      }).required()
+    ).required(),
+  patient: Joi.object({
+    id: Joi.number().integer().min(1).required()
+  })
+})
+
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
   const { Patient, Diagnose } = models
-
   const newPatient = req.body
 
   try {

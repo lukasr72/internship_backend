@@ -1,9 +1,24 @@
 import { Request, Response } from 'express'
 import Joi from "joi";
-import { GENDER_PARAM, GENDER, SUBSTANCES_TIMEUNIT, PERSON_TYPE } from "../../../utils/enums";
+import {
+  GENDER_PARAM,
+  GENDER,
+  SUBSTANCES_TIMEUNIT,
+  PERSON_TYPE,
+  MIN_WEIGHT_VALUE,
+  MAX_WEIGHT_VALUE
+} from "../../../utils/enums";
 import { map } from "lodash";
 import { getAge, getPersonType, calcSubstanceAmount } from '../../../utils/helpers'
 import { models } from "../../../db";
+import { PatientModel } from "../../../db/models/patients";
+
+export const paginationResponse = Joi.object({
+  limit: Joi.number().integer().min(1).required(),
+  page: Joi.number().integer().min(1).required(),
+  totalPages: Joi.number().integer().min(0).required(),
+  totalCount: Joi.number().integer().min(0).required()
+}).required()
 
 export const schema = Joi.object({
   body: Joi.object(),
@@ -17,14 +32,14 @@ export const schema = Joi.object({
 })
 
 export const responseSchema = Joi.object({
-  patients:Joi.array()
+  patients: Joi.array()
     .items(
       Joi.object({
         id: Joi.number().integer().min(1).required(),
         firstName: Joi.string().max(100).required(),
         lastName: Joi.string().max(100).required(),
         birthdate: Joi.date().iso().required(),
-        weight: Joi.number().integer().min(1).max(200).required,
+        weight: Joi.number().integer().min(MIN_WEIGHT_VALUE).max(MAX_WEIGHT_VALUE).required(),
         height: Joi.number().integer().min(1).required(),
         identificationNumber: Joi.string().alphanum().length(12).required(),
         gender: Joi.string().valid(...Object.values(GENDER)).required(),
@@ -44,6 +59,7 @@ export const responseSchema = Joi.object({
         }).required()
       }).required()
     ).required(),
+  pagination: paginationResponse
 })
 
 export const workflow = async (req: Request, res: Response) => {
@@ -83,7 +99,7 @@ export const workflow = async (req: Request, res: Response) => {
     offset
   })
 
-  const selectedPatients = queryPatients.rows
+  const selectedPatients: PatientModel[] = queryPatients.rows
 
   return res.json({
     patients: map(selectedPatients, (patient) => {
