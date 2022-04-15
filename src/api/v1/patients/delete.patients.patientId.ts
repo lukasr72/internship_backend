@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
-import { PatientModel } from "../../../db/models/patients";
 import { IMessage, IPatientsMessageResponse } from "../../../utils/interfaces";
+import { models } from "../../../db";
 
 export const schema = Joi.object({
   body: Joi.object(),
@@ -13,15 +13,17 @@ export const schema = Joi.object({
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
 
+  const { Patient } = models
+
   const patientId: number = Number(req.params.patientId)
 
   try {
-    const patient = await PatientModel.findByPk(patientId)
+    const patient = await Patient.findByPk(patientId)
     if(!patient) {
       throw new Error('Patient not found.')
     }
 
-    await PatientModel.destroy({
+    await Patient.destroy({
       where: {
         id: patientId
       }

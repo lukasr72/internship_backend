@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
 import { GENDER } from "../../../utils/enums";
-import { PatientModel } from "../../../db/models/patients";
-import { DiagnoseModel } from "../../../db/models/diagnoses";
 import { IMessage, IPatientsMessageResponse } from "../../../utils/interfaces";
+import { models } from "../../../db";
 
 export const schema = Joi.object({
   body: Joi.object({
@@ -24,17 +23,19 @@ export const schema = Joi.object({
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
 
+  const { Patient, Diagnose } = models
+
   const patientId: number = Number(req.params.patientId)
-  const patientNewData: PatientModel = req.body
+  const patientNewData = req.body
 
   try {
-    const patientModel = await PatientModel.findByPk(patientId)
+    const patientModel = await Patient.findByPk(patientId)
     if(!patientModel) {
       throw new Error('Patient not found.')
     }
 
     if(patientNewData.diagnoseID) {
-      const diagnose = await DiagnoseModel.findAll({
+      const diagnose = await Diagnose.findAll({
         where: {
           id: patientNewData.diagnoseID
         }
@@ -45,7 +46,7 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
     }
 
     if(patientNewData.identificationNumber) {
-      const patientUnique = await PatientModel.findAll({
+      const patientUnique = await Patient.findAll({
         where: {
           identificationNumber: patientNewData.identificationNumber
         }

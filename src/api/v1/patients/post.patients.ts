@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi"
 import { GENDER } from "../../../utils/enums"
-import { PatientModel } from "../../../db/models/patients";
-import { DiagnoseModel } from "../../../db/models/diagnoses";
 import { IMessage, IPatient, IPatientsPostResponse } from "../../../utils/interfaces";
+import { models } from "../../../db";
 
 export const schema = Joi.object({
   body: Joi.object({
@@ -22,10 +21,12 @@ export const schema = Joi.object({
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
 
-  const newPatient: PatientModel = req.body
+  const { Patient, Diagnose, Substance } = models
+
+  const newPatient = req.body
 
   try {
-    const diagnose = await DiagnoseModel.findAll({
+    const diagnose = await Diagnose.findAll({
       where: {
         id: newPatient.diagnoseID
       }
@@ -34,7 +35,7 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
       throw new Error('Diagnose not found.')
     }
 
-    const patient = await PatientModel.findAll({
+    const patient = await Patient.findAll({
       where: {
         identificationNumber: newPatient.identificationNumber
       }
@@ -43,13 +44,13 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
       throw new Error('Patient already exists.')
     }
 
-    const patientModel = await PatientModel.create(newPatient)
+    const patientModel = await Patient.create(newPatient)
 
     const message: IMessage = { message: 'New patient added', type: 'SUCCESS' }
     const patientInfo: IPatient = { id: patientModel.id }
     const responseMessage: IPatientsPostResponse = { messages: [message], patient: patientInfo }
 
-    res.status(200).json(responseMessage)
+    return res.status(200).json(responseMessage)
   } catch (error) {
     return next(error)
   }

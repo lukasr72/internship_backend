@@ -1,11 +1,9 @@
 import { Request, Response } from 'express'
-import { PatientModel } from "../../../db/models/patients";
-import { DiagnoseModel } from "../../../db/models/diagnoses";
-import { SubstanceModel } from "../../../db/models/substances";
 import Joi from "joi";
-import { GENDER_PARAM } from "../../../utils/enums";
+import { GENDER_PARAM, GENDER, SUBSTANCES_TIMEUNIT, PERSON_TYPE } from "../../../utils/enums";
 import { map } from "lodash";
 import { getAge, getPersonType, calcSubstanceAmount } from '../../../utils/helpers'
+import { models } from "../../../db";
 
 export const schema = Joi.object({
   body: Joi.object(),
@@ -18,9 +16,41 @@ export const schema = Joi.object({
   params: Joi.object()
 })
 
+export const responseSchema = Joi.object({
+  patients:Joi.array()
+    .items(
+      Joi.object({
+        id: Joi.number().integer().min(1).required(),
+        firstName: Joi.string().max(100).required(),
+        lastName: Joi.string().max(100).required(),
+        birthdate: Joi.date().iso().required(),
+        weight: Joi.number().integer().min(1).max(200).required,
+        height: Joi.number().integer().min(1).required(),
+        identificationNumber: Joi.string().alphanum().length(12).required(),
+        gender: Joi.string().valid(...Object.values(GENDER)).required(),
+        age: Joi.number().integer().min(0).required(),
+        personType: Joi.string().valid(...Object.values(PERSON_TYPE)).required(),
+        substanceAmount: Joi.number().min(1).required(),
+        diagnose: Joi.object({
+          id: Joi.number().integer().min(1).required(),
+          name: Joi.string().max(100).required(),
+          description: Joi.string().max(200).required(),
+          substance: Joi.object({
+            id: Joi.number().integer().min(1).required(),
+            name: Joi.string().max(100).required(),
+            timeUnit: Joi.string().valid(...Object.values(SUBSTANCES_TIMEUNIT)).required(),
+            halfLife: Joi.number().min(0).required()
+          })
+        }).required()
+      }).required()
+    ).required(),
+})
+
 export const workflow = async (req: Request, res: Response) => {
 
-  const gender = req.query.gender
+  const { Patient, Diagnose, Substance } = models
+
+  const gender = req.query.gender ? req.query.gender : 'ALL'
   let qOrder = req.query.order ? (req.query.order as string).split(':') : []
   if (qOrder.length === 0) {
     qOrder[0] = 'lastName'
@@ -35,10 +65,10 @@ export const workflow = async (req: Request, res: Response) => {
     whereConditions = { gender }
   }
 
-  const queryPatients = await PatientModel.findAndCountAll({
+  const queryPatients = await Patient.findAndCountAll({
     include: {
-      model: DiagnoseModel,
-      include: [{model: SubstanceModel}],
+      model: Diagnose,
+      include: [{model: Substance}],
       attributes: {
         exclude: ['substanceID']
       },
@@ -54,11 +84,11 @@ export const workflow = async (req: Request, res: Response) => {
     offset
   })
 
-  const selectedPatients: PatientModel[] = queryPatients.rows
+  const selectedPatients = queryPatients.rows
 
-  res.json({
+  return res.json({
     patients: map(selectedPatients, (patient) => {
-      const age = getAge(patient.birthdate)
+      const age: number = getAge(patient.birthdate)
       const personType = getPersonType(age, patient.weight)
       const substanceAmount = calcSubstanceAmount(personType, patient.weight)
 
@@ -71,9 +101,9 @@ export const workflow = async (req: Request, res: Response) => {
         height: patient.height,
         identificationNumber: patient.identificationNumber,
         gender: patient.gender,
-        age: age,
-        personType: personType,
-        substanceAmount: substanceAmount,
+        age,
+        personType,
+        substanceAmount,
         diagnose: {
           id: patient.diagnose.id,
           name: patient.diagnose.name,

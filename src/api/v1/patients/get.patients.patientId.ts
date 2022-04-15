@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
-import { PatientModel } from "../../../db/models/patients";
-import { DiagnoseModel } from "../../../db/models/diagnoses";
-import { SubstanceModel } from "../../../db/models/substances";
+import { models } from "../../../db";
 import { calcSubstanceAmount, getAge, getPersonType } from "../../../utils/helpers";
+import { PERSON_TYPE } from "../../../utils/enums";
 
 export const schema = Joi.object({
   body: Joi.object(),
@@ -15,24 +14,30 @@ export const schema = Joi.object({
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
 
-  const patientId: number = Number(req.params.patientId)
+  const { Patient, Diagnose, Substance } = models
 
   try {
-    const patient = await PatientModel.findByPk(patientId, {
+    const patientId: number = Number(req.params.patientId)
+
+    const patient = await Patient.findByPk(patientId, {
       include: {
-        model: DiagnoseModel,
-        include: [{ model: SubstanceModel }]
+        model: Diagnose,
+        required: true,
+        include: [{
+          model: Substance,
+          required: true
+        }]
       }
     })
     if(!patient) {
       throw new Error('Patient not found.')
     }
 
-    const age = getAge(patient.birthdate)
-    const personType = getPersonType(age, patient.weight)
-    const substanceAmount = calcSubstanceAmount(personType, patient.weight)
+  const age: number = getAge(patient.birthdate)
+  const personType: PERSON_TYPE = getPersonType(age, patient.weight)
+  const substanceAmount: number = calcSubstanceAmount(personType, patient.weight)
 
-    res.status(200).json({
+    return res.json({
       id: patient.id,
       firstName: patient.firstName,
       lastName: patient.lastName,
@@ -41,9 +46,9 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
       height: patient.height,
       identificationNumber: patient.identificationNumber,
       gender: patient.gender,
-      age: age,
-      personType: personType,
-      substanceAmount: substanceAmount,
+      age,
+      personType,
+      substanceAmount,
       diagnose: {
         id: patient.diagnose.id,
         name: patient.diagnose.name,
