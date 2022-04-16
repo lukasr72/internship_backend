@@ -24,7 +24,7 @@ export const schema = Joi.object({
   body: Joi.object(),
   query: Joi.object({
     gender: Joi.string().valid(...Object.values(GENDER_PARAM)),
-    order: Joi.string(),
+    order: Joi.string().pattern(/^[a-zA-Z]*(:)(desc|asc|DESC|ASC)$/),
     limit: Joi.number().valid(25, 50, 100),
     page: Joi.number()
   }),

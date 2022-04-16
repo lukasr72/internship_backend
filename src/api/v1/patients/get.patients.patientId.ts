@@ -12,7 +12,8 @@ export const schema = Joi.object({
   })
 })
 
-export const responseSchema = Joi.object({
+export const responseSchemaGetPatient = Joi.object({
+  patient: Joi.object({
     id: Joi.number().integer().min(1).required(),
     firstName: Joi.string().max(100).required(),
     lastName: Joi.string().max(100).required(),
@@ -35,6 +36,7 @@ export const responseSchema = Joi.object({
         halfLife: Joi.number().min(0).required()
       })
     }).required()
+  }).required()
 })
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
@@ -62,26 +64,28 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
   const substanceAmount: number = calcSubstanceAmount(personType, patient.weight)
 
     return res.json({
-      id: patient.id,
-      firstName: patient.firstName,
-      lastName: patient.lastName,
-      birthdate: patient.birthdate,
-      weight: patient.weight,
-      height: patient.height,
-      identificationNumber: patient.identificationNumber,
-      gender: patient.gender,
-      age,
-      personType,
-      substanceAmount,
-      diagnose: {
-        id: patient.diagnose.id,
-        name: patient.diagnose.name,
-        description: patient.diagnose.description,
-        substance: {
-          id: patient.diagnose.substance.id,
-          name: patient.diagnose.substance.name,
-          timeUnit: patient.diagnose.substance.timeUnit,
-          halfLife: patient.diagnose.substance.halfLife
+      patient: {
+        id: patient.id,
+        firstName: patient.firstName,
+        lastName: patient.lastName,
+        birthdate: patient.birthdate,
+        weight: patient.weight,
+        height: patient.height,
+        identificationNumber: patient.identificationNumber,
+        gender: patient.gender,
+        age,
+        personType,
+        substanceAmount,
+        diagnose: {
+          id: patient.diagnose.id,
+          name: patient.diagnose.name,
+          description: patient.diagnose.description,
+          substance: {
+            id: patient.diagnose.substance.id,
+            name: patient.diagnose.substance.name,
+            timeUnit: patient.diagnose.substance.timeUnit,
+            halfLife: patient.diagnose.substance.halfLife
+          }
         }
       }
     })

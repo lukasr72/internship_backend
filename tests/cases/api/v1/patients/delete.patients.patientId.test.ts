@@ -19,4 +19,13 @@ describe(`[DELETE] ${endpoint(patientID)}`, () => {
     expect(validationResult.error).to.eq(undefined)
   })
 
+  it('Response should return 404 because patient will be deleted', async () => {
+    const response = await supertest(app)
+      .get(endpoint(patientID))
+      .set('Content-Type', 'application/json')
+
+    expect(response.status).to.eq(404)
+    expect(response.type).to.eq('application/json')
+  })
+
 })
