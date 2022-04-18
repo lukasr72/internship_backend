@@ -7,12 +7,14 @@ import * as PostPatients from './post.patients'
 import * as GetPatientsPatientId from './get.patients.patientId'
 import * as PatchPatientsPatientId from './patch.patients.patientId'
 import * as DeletePatientsPatientId from './delete.patients.patientId'
+import * as GetSubstanceAmount from './get.substanceAmount'
 
 const router = Router()
 
 export default () => {
   router.get('/', validationMiddleware(GetPatients.schema), GetPatients.workflow)
   router.post('/', validationMiddleware(PostPatients.schema), PostPatients.workflow, errorMiddleware())
+  router.get('/substanceAmount', GetSubstanceAmount.workflow, errorMiddleware())
   router.get('/:patientId', validationMiddleware(GetPatientsPatientId.schema), GetPatientsPatientId.workflow, errorMiddleware())
   router.patch('/:patientId', validationMiddleware(PatchPatientsPatientId.schema), PatchPatientsPatientId.workflow, errorMiddleware())
   router.delete('/:patientId', validationMiddleware(DeletePatientsPatientId.schema), DeletePatientsPatientId.workflow, errorMiddleware())
