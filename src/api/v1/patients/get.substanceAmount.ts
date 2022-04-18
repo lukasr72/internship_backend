@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Joi from "joi";
 import { PERSON_TYPE, PERSON_TYPES } from "../../../utils/enums";
-import { calcSubstanceAmount } from "../../../utils/helpers";
+import { calcSubstanceAmount, isAdult } from "../../../utils/helpers";
 
 interface IDataResult {
   weight: number
@@ -29,12 +29,14 @@ export const workflow = async (req: Request, res: Response) => {
     }
     result.push(adult)
 
-    const child: IDataResult = {
-      weight: i,
-      category: PERSON_TYPE.CHILD,
-      amount: calcSubstanceAmount(PERSON_TYPE.CHILD, i)
+    if (!isAdult(1, i)) {
+      const child: IDataResult = {
+        weight: i,
+        category: PERSON_TYPE.CHILD,
+        amount: calcSubstanceAmount(PERSON_TYPE.CHILD, i)
+      }
+      result.push(child)
     }
-    result.push(child)
   }
 
   return res.json(result)
