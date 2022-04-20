@@ -4,6 +4,7 @@ import { GENDER } from "../../../utils/enums";
 import { IMessage, IPatient, IPatientsPostResponse } from "../../../utils/interfaces";
 import { models } from "../../../db";
 import { PatientModel } from "../../../db/models/patients";
+import { DiagnoseModel } from "../../../db/models/diagnoses";
 
 export const schema = Joi.object({
   body: Joi.object({
@@ -35,28 +36,24 @@ export const responseSchema = Joi.object({
 
 export const workflow = async (req: Request, res: Response, next: NextFunction) => {
   const { Patient, Diagnose } = models
-  const newPatient = req.body
+  const newPatient: PatientModel = req.body
 
   try {
-    const diagnose = await Diagnose.findAll({
-      where: {
-        id: newPatient.diagnoseID
-      }
-    })
-    if (diagnose.length === 0) {
+    const diagnose: DiagnoseModel = await Diagnose.findByPk(newPatient.diagnoseID)
+    if (!diagnose) {
       throw new Error('Diagnose not found.')
     }
 
-    const patient = await Patient.findAll({
+    const patient: PatientModel = await Patient.findOne({
       where: {
         identificationNumber: newPatient.identificationNumber
       }
     })
-    if (patient.length > 0) {
+    if (patient) {
       throw new Error('Patient already exists.')
     }
 
-    const patientModel = await Patient.create(newPatient)
+    const patientModel: PatientModel = await Patient.create(newPatient)
 
     const message: IMessage = { message: 'New patient added', type: 'SUCCESS' }
     const patientInfo: IPatient = { id: patientModel.id }

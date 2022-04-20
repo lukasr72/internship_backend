@@ -3,6 +3,7 @@ import Joi from "joi";
 import { models } from "../../../db";
 import { calcSubstanceAmount, getAge, getPersonType } from "../../../utils/helpers";
 import { GENDER, MAX_WEIGHT_VALUE, MIN_WEIGHT_VALUE, PERSON_TYPE, SUBSTANCES_TIMEUNIT } from "../../../utils/enums";
+import { PatientModel } from "../../../db/models/patients";
 
 export const schema = Joi.object({
   body: Joi.object(),
@@ -45,7 +46,7 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
   try {
     const patientId: number = Number(req.params.patientId)
 
-    const patient = await Patient.findByPk(patientId, {
+    const patient: PatientModel = await Patient.findByPk(patientId, {
       include: {
         model: Diagnose,
         required: true,

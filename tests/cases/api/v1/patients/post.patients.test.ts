@@ -48,4 +48,42 @@ describe(`[POST] ${url}`, () => {
     expect(response.body.patient.id).to.eq(patientID)
   })
 
+  it('Response should return error - patient with identificationNumber already exists', async () => {
+    const response = await supertest(app)
+      .post(url)
+      .send({
+        firstName: "Oscar",
+        lastName: "Smith",
+        birthdate: "1977-08-15T03:25:36.443Z",
+        weight: 95,
+        height: 195,
+        identificationNumber: "LPWUs9VlLPWU",
+        gender: "MALE",
+        diagnoseID: 9
+      })
+      .set('Content-Type', 'application/json')
+
+    expect(response.status).to.eq(404)
+    expect(response.type).to.eq('application/json')
+  })
+
+  it('Response should return error - diagnose not found', async () => {
+    const response = await supertest(app)
+      .post(url)
+      .send({
+        firstName: "Oscar",
+        lastName: "Smith",
+        birthdate: "1977-08-15T03:25:36.443Z",
+        weight: 95,
+        height: 195,
+        identificationNumber: "LPWUs9VlLPWU",
+        gender: "MALE",
+        diagnoseID: 999999
+      })
+      .set('Content-Type', 'application/json')
+
+    expect(response.status).to.eq(404)
+    expect(response.type).to.eq('application/json')
+  })
+
 })

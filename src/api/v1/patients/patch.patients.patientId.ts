@@ -3,6 +3,9 @@ import Joi from "joi";
 import { GENDER } from "../../../utils/enums";
 import { IMessage, IPatientsMessageResponse } from "../../../utils/interfaces";
 import { models } from "../../../db";
+import { Op } from "sequelize";
+import { PatientModel } from "../../../db/models/patients";
+import { DiagnoseModel } from "../../../db/models/diagnoses";
 
 export const schema = Joi.object({
   body: Joi.object({
@@ -35,39 +38,37 @@ export const workflow = async (req: Request, res: Response, next: NextFunction) 
   const { Patient, Diagnose } = models
 
   const patientId: number = Number(req.params.patientId)
-  const patientNewData = req.body
+  const patientNewData: PatientModel = req.body
 
   try {
-    const patientModel = await Patient.findByPk(patientId)
+    const patientModel: PatientModel = await Patient.findByPk(patientId)
     if(!patientModel) {
       throw new Error('Patient not found.')
     }
 
     if(patientNewData.diagnoseID) {
-      const diagnose = await Diagnose.findAll({
-        where: {
-          id: patientNewData.diagnoseID
-        }
-      })
-      if (diagnose.length === 0) {
+      const diagnose: DiagnoseModel = await Diagnose.findByPk(patientNewData.diagnoseID)
+      if (!diagnose) {
         throw new Error('Diagnose not found.')
       }
     }
 
     if(patientNewData.identificationNumber) {
-      const patientUnique = await Patient.findAll({
+      const patientUnique: PatientModel = await Patient.findOne({
         where: {
+          id: {
+            [Op.not]: patientId,
+          },
           identificationNumber: patientNewData.identificationNumber
         }
       })
-      if (patientUnique.length > 0) {
+      if (patientUnique) {
         throw new Error('Patient\'s identification number already exists.')
       }
     }
 
     await patientModel.update(patientNewData)
     await patientModel.save()
-
 
     const message: IMessage = { message: 'Patient updated.', type: 'SUCCESS' }
     const responseMessage: IPatientsMessageResponse = { messages: [message] }

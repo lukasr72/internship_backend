@@ -6,7 +6,8 @@ import {
   SUBSTANCES_TIMEUNIT,
   PERSON_TYPE,
   MIN_WEIGHT_VALUE,
-  MAX_WEIGHT_VALUE
+  MAX_WEIGHT_VALUE,
+  GET_PATIENTS_ORDER_PARAMS
 } from "../../../utils/enums";
 import { map } from "lodash";
 import { getAge, getPersonType, calcSubstanceAmount } from '../../../utils/helpers'
@@ -24,7 +25,7 @@ export const schema = Joi.object({
   body: Joi.object(),
   query: Joi.object({
     gender: Joi.string().valid(...Object.values(GENDER_PARAM)),
-    order: Joi.string().pattern(/^[a-zA-Z]*(:)(desc|asc|DESC|ASC)$/),
+    order: Joi.string().valid(...GET_PATIENTS_ORDER_PARAMS),
     limit: Joi.number().valid(25, 50, 100),
     page: Joi.number()
   }),
