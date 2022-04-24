@@ -8,15 +8,27 @@ import * as GetPatientsPatientId from './get.patients.patientId'
 import * as PatchPatientsPatientId from './patch.patients.patientId'
 import * as DeletePatientsPatientId from './delete.patients.patientId'
 import * as GetSubstanceAmount from './get.substanceAmount'
+import passport from "passport";
+import permissionMiddleware from "../../../middlewares/permissionMiddleware";
+import { USER_ROLE } from "../../../utils/enums";
 
 const router = Router()
 
 export default () => {
-  router.get('/', validationMiddleware(GetPatients.schema), GetPatients.workflow)
+  router.get('/',
+    passport.authenticate('jwt-api'),
+    permissionMiddleware([USER_ROLE.ADMIN]),
+    validationMiddleware(GetPatients.schema),
+    GetPatients.workflow)
+
   router.post('/', validationMiddleware(PostPatients.schema), PostPatients.workflow, errorMiddleware())
+
   router.get('/substanceAmount', GetSubstanceAmount.workflow, errorMiddleware())
+
   router.get('/:patientId', validationMiddleware(GetPatientsPatientId.schema), GetPatientsPatientId.workflow, errorMiddleware())
+
   router.patch('/:patientId', validationMiddleware(PatchPatientsPatientId.schema), PatchPatientsPatientId.workflow, errorMiddleware())
+
   router.delete('/:patientId', validationMiddleware(DeletePatientsPatientId.schema), DeletePatientsPatientId.workflow, errorMiddleware())
 
   return router
