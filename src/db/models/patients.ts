@@ -70,6 +70,7 @@ export default (sequelize: Sequelize, modelName: string) => {
 
   (PatientModel as any).associate = (models: Models) => {
     PatientModel.belongsTo(models.Diagnose, { foreignKey: 'diagnoseID' })
+    PatientModel.hasOne(models.User, { foreignKey: 'id' })
   }
 
   return PatientModel

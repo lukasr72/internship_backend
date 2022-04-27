@@ -1,17 +1,24 @@
 import { NextFunction, Request, Response } from "express";
+import { USER_ROLE } from "../utils/enums";
 
 export default (permissions: string[]) => (req: Request, res: Response, next: NextFunction) => {
+  const user: any = req.user;
 
-  console.log(req.user)
+  try {
+    if (!permissions.includes(user.role)) {
+      throw new Error('Forbidden')
+    }
 
-  const usr = req.user as any
-  // tu spravime overenie pouzivatelskych roli
-  if (permissions.includes(usr.role)) {
-    return next(new Error('Forbidden'))
+    if (user.role === USER_ROLE.USER) {
+      const patientID: number = Number(req.params.patientId)
+      if (user.patientID !== patientID) {
+        throw new Error('Forbidden')
+      }
+    }
+
+    return next()
+  } catch (error) {
+    return next(error)
   }
 
-  // create jwt vytvori token pre pouzivatela
-  // alebo sign pre jsonwebtoken ?
-
-  return next()
 }
